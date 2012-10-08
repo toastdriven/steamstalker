@@ -70,8 +70,6 @@ def steamprofile_detail(request, username):
         'all_friends': SortedDict(),
         'per_friend': {},
         'per_game': {},
-        'max_friends_online': 0,
-        'max_friends_ingame': 0,
     }
 
     # TODO: In thinking about this after the fact, I'm going about generating
@@ -138,11 +136,6 @@ def steamprofile_detail(request, username):
 
     for game, time_series_data in friends_data['per_game'].copy().items():
         friends_data['per_game'][game] = [{'timestamp': timestamp, 'usernames': users} for timestamp, users in time_series_data.items()]
-
-    # Calculate some final overall statistics.
-    # Tons of room for optimization here, but time is short.
-    friends_data['max_friends_online'] = max([len(the_data['online']) for the_data in friends_data['all_friends']])
-    friends_data['max_friends_ingame'] = max([len(the_data['online']) + len(the_data['ingame']) for the_data in friends_data['all_friends']])
 
     return render(request, 'steamstalker/steamprofile_detail.html', {
         'start_date': start_date,
