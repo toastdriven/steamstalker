@@ -62,7 +62,7 @@ def steamprofile_detail(request, username):
     # FIXME: Everything below this up until the ``render`` really ought to be
     #        pulled out & placed into the ``Manager``, for better isolation
     #        (and shorter methods).
-    seen_qs = profile.friends_seen.filter(created__range=[start_date, end_date]).select_related(depth=1)
+    seen_qs = profile.friends_seen.filter(created__range=[start_date, end_date]).select_related(depth=1).order_by('created')
 
     # Aggregate all the data. We'll try to be efficient by only hitting the DB
     # once to fetch everything, then processing through to flesh out the data.
