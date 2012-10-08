@@ -1,0 +1,27 @@
+{% extends "steamstalker/base.html" %}
+
+{% block content %}
+    <h2>{{ username }}'s Friends</h2>
+
+    <div class="graph_area">
+        {% if profile %}
+            <p>
+                We don't have any data on "{{ username }}" yet. Don't lose hope
+                though! We've added it &amp; will have data shortly!
+            </p>
+
+            <p>
+                Please check again in 15 minutes!
+            </p>
+        {% else %}
+            <p>
+                The profile "{{ username }}" doesn't appear to be on Steam.
+            </p>
+
+            <p>
+                Please double-check the username &amp; try again with a corrected
+                version.
+            </p>
+        {% endif %}
+    </div>
+{% endblock %}

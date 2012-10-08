@@ -1,0 +1,223 @@
+{% extends "steamstalker/base.html" %}
+
+{% block page_title %}{{ username }}'s Friends - {{ block.super }}{% endblock %}
+
+{% block extrajs %}
+<script type="text/javascript">
+    // This is ugly (should be pulled out into an API hit), but time is short.
+    var friends_seen = {% autoescape off %}{{ friends_seen_json }}{% endautoescape %};
+
+    var draw_all_friends = function(all_friends) {
+        "use strict";
+        var overall_dimensions = {
+            width: 900,
+            height: 330
+        };
+        var margins = {
+            top: 20,
+            right: 10,
+            bottom: 50,
+            left: 60
+        };
+        var chart_dimensions = {
+            width: overall_dimensions.width - margins.left - margins.right,
+            height: overall_dimensions.height - margins.top - margins.bottom,
+        };
+
+        var chart = d3.select("#all_friends")
+                      .append("svg")
+                        .attr("width", overall_dimensions.width)
+                        .attr("height", overall_dimensions.height)
+                      .append("g")
+                        .attr("transform", "translate(" + margins.left + ", " + margins.right + ")")
+                        .attr("id", "all_friends_chart")
+
+        var time_extent = d3.extent(all_friends, function(d) {
+            return d.timestamp * 1000;
+        });
+        var active_max = d3.max(all_friends, function(d) {
+            return d.online.length + d.ingame.length;
+        });
+        var time_scale = d3.time.scale()
+                           .range([0, chart_dimensions.width])
+                           .domain(time_extent);
+
+        var active_scale = d3.scale.linear()
+                             .range([chart_dimensions.height, 0])
+                             .domain([0, active_max]);
+
+        var time_axis = d3.svg.axis()
+                          .scale(time_scale);
+
+        var active_axis = d3.svg.axis()
+                            .scale(active_scale)
+                            .orient("left");
+
+        chart.append("g")
+             .attr("class", "x-axis")
+             .attr("transform", "translate(0, " + chart_dimensions.height + ")")
+             .call(time_axis);
+
+        chart.append("g")
+             .attr("class", "y-axis")
+             .call(active_axis);
+
+        d3.select("#all_friends .y-axis")
+          .append("text")
+            .attr("text-anchor", "middle")
+            .text("# of Active Friends")
+            .attr("transform", "rotate(-270, 0, 0)")
+            .attr("x", overall_dimensions.height/2)
+            .attr("y", 50);
+
+        d3.select("#all_friends .x-axis")
+          .append("text")
+            .attr("text-anchor", "middle")
+            .text("Time (in GMT)")
+            .attr("x", overall_dimensions.width/2)
+            .attr("y", 35);
+
+        var online_line = d3.svg.line()
+                            .x(function(d) { return time_scale(d.timestamp * 1000) + margins.left; })
+                            .y(function(d) { return active_scale(d.online.length) + (margins.top / 2); })
+                            .interpolate("linear");
+
+        var active_line = d3.svg.line()
+                            .x(function(d) { return time_scale(d.timestamp * 1000) + margins.left; })
+                            .y(function(d) { return active_scale(d.ingame.length + d.online.length) + (margins.top / 2); })
+                            .interpolate("linear");
+
+        d3.select("#all_friends svg")
+          .append("path")
+            .attr("d", online_line(all_friends))
+            .attr("class", "online-line");
+
+        d3.select("#all_friends svg")
+          .append("path")
+            .attr("d", active_line(all_friends))
+            .attr("class", "ingame-line");
+    };
+
+    var draw_per_friend = function(all_per_friend) {
+        "use strict";
+        for(var username in all_per_friend) {
+            var current_friend = all_per_friend[username];
+
+            var friend_row = d3.select("#per_friend")
+                               .append("div")
+                                 .attr("class", "friend_row");
+            var profile_info = friend_row.append("div")
+                                           .attr("class", "profile_info");
+            //profile_info.append("img")
+            //              .attr("href", )
+            profile_info.text(username);
+
+            friend_row.selectAll(".friend_bar")
+                      .data(current_friend)
+                      .enter()
+                      .append("div")
+                        .attr("class", "friend_bar")
+                        .style("height", function(d) {
+                            if(d.status == 'ingame') {
+                                return "20px";
+                            } else if(d.status == 'online') {
+                                return "10px";
+                            }
+                            return "2px";
+                        })
+                        .style("background-color", function(d) {
+                            if(d.status == 'ingame') {
+                                return "#B1FB50";
+                            } else if(d.status == 'online') {
+                                return "#E1E1D5";
+                            }
+                            return "#898989";
+                        })
+                        .style("margin-top", function(d) {
+                            if(d.status == 'ingame') {
+                                return "0px";
+                            } else if(d.status == 'online') {
+                                return "10px";
+                            }
+                            return "18px";
+                        });
+        }
+    };
+
+    var draw_per_game = function(all_per_game) {
+        "use strict";
+        for(var game_name in all_per_game) {
+            var current_game = all_per_game[game_name];
+
+            var game_row = d3.select("#per_game")
+                             .append("div")
+                               .attr("class", "game_row");
+            var game_info = game_row.append("div")
+                                      .attr("class", "game_info");
+            game_info.text(game_name);
+
+            var active_max = d3.max(current_game, function(d) {
+                return d.usernames.length;
+            });
+
+            game_row.selectAll(".game_bar")
+                    .data(current_game)
+                    .enter()
+                    .append("div")
+                      .attr("class", "game_bar")
+                      .style("height", function(d) {
+                          var size = (d.usernames.length * 5) + 2;
+                          return size + "px";
+                      })
+                      .style("margin-top", function(d) {
+                          var amount = (active_max * 5) - (d.usernames.length * 5);
+                          return amount + "px";
+                      });
+        }
+    };
+
+    var draw = function() {
+        "use strict";
+        console.log("Thinking about drawing a graph.");
+        draw_all_friends(friends_seen.all_friends);
+        draw_per_friend(friends_seen.per_friend);
+        draw_per_game(friends_seen.per_game);
+        console.log("LOL I graph'd.");
+    };
+
+    $(document).ready(draw);
+</script>
+{% endblock %}
+
+{% block content %}
+<h2>{{ username }}'s Friends</h2>
+
+<div id="date_range" class="graph_area">
+    <form method="get" action="">
+        <p>
+            For the date range
+            <input type="text" name="start_date" value="{{ start_date }}">
+            to
+            <input type="text" name="end_date" value="{{ end_date }}">.
+            <br>
+            <button>Update!</button>
+        </p>
+    </form>
+</div>
+
+<div id="all_friends" class="graph_area">
+    <h3>All Friends</h3>
+</div>
+
+<div id="per_friend" class="graph_area">
+    <h3>Per Friend</h3>
+
+</div>
+
+<div id="per_game" class="graph_area">
+    <h3>Per Game</h3>
+
+    <p><em>Approximate interest over the time period. Not to scale.</em></p>
+
+</div>
+{% endblock %}

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{% block page_title %}Steam Stalker{% endblock %}</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #939393;
+            color: #E1E1D5;
+            font-family: Helvetica, Arial, serif;
+            text-align: center;
+        }
+        h1, h2, h3, h4, h5 {
+            margin: 0 0 20px 0;
+        }
+        p {
+            margin: 0 0 20px 0;
+        }
+        a, a:hover, a:visited {
+            color: #FFFFFF;
+        }
+        svg {
+            background-color: #454341;
+            margin: 10px 15px;
+        }
+        header {
+            background-color: #262626;
+            border-bottom: solid 3px #E1E1D5;
+            padding: 20px 0px 5px 0px;
+            text-align: left;
+        }
+        section {
+            background-color: #262626;
+            padding-bottom: 20px;
+            padding-top: 20px;
+            text-align: left;
+        }
+        footer {
+            background-color: #1D1D1D;
+            border-top: solid 3px #E1E1D5;
+            font-size: 0.8em;
+            font-style: italic;
+            padding: 20px 0px;
+            text-align: center;
+        }
+        .centered {
+            margin: 0 auto;
+            padding-left: 20px;
+            padding-right: 20px;
+            width: 960px;
+        }
+        .graph_area {
+            margin-bottom: 40px;
+        }
+        .x-axis,
+        .y-axis {
+            font-size: 0.8em;
+        }
+        path {
+            fill: none;
+            stroke: #898989;
+            stroke-width: 2px;
+        }
+        svg text {
+            fill: #898989;
+        }
+        .tick {
+            fill: none;
+            stroke: #898989;
+        }
+        .online-line {
+            fill: none;
+            stroke: #E1E1D5;
+            stroke-width: 2px;
+        }
+        .ingame-line {
+            fill: none;
+            stroke: #B1FB50;
+            stroke-width: 2px;
+        }
+        .per_friend, .per_game {
+            overflow: auto;
+        }
+        .friend_row, .game_row {
+            border-bottom: solid 1px #1D1D1D;
+            clear: both;
+            height: 20px;
+            width: 680px;
+        }
+        .profile_info, .game_info {
+            border-right: solid 1px #1D1D1D;
+            float: left;
+            width: 150px;
+        }
+        .game_info {
+            width: 250px;
+        }
+        .friend_bar, .game_bar {
+            float: left;
+            width: 1px;
+        }
+        .game_bar {
+            background-color: #B1FB50;
+        }
+    </style>
+    <!-- Yanking down jQuery just for ``$(document).ready(...)``. I AM ASHAMED. -->
+    <script type="text/javascript" src="{{ STATIC_URL }}/js/jquery-1.8.2.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}/js/d3.v2.js"></script>
+    {% block extrajs %}
+    {% endblock %}
+</head>
+<body>
+    <header>
+        <h1 class="centered">Steam Stalker</h1>
+
+        <div class="centered"><em>When are <strong>your</strong> friends playing?</em></div>
+    </header>
+
+    <section class="centered">
+        {% block content %}
+        {% endblock %}
+    </section>
+
+    <footer class="centered">
+        <div>Created by <a href="http://toastdriven.com/daniellindsley/">Daniel Lindsley</a>.</div>
+        <div>This site is not affiliated with Valve in any way, shape or form.</div>
+        <div>Data is collected every 5-10 minutes, so there may be gaps.</div>
+        <div>All data courtesy of <a href="http://steamcommunity.com/">Valve Software</a>.</div>
+    </footer>
+</body>
+</html>
