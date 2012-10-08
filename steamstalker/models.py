@@ -80,17 +80,17 @@ class SteamProfile(models.Model):
         except requests.models.ConnectionError as e:
             # TODO: Add logging.
             print u'ConnectionError: %s' % e
-            return ''
+            return '<html></html>'
         except requests.models.Timeout as e:
             # TODO: Add logging.
             print u'Timeout: %s' % e
-            return ''
+            return '<html></html>'
 
         # Raising an exception (and/or distinquishing between response codes)
         # might be helpful here.
         if resp.status_code != 200:
             print u'Status code: %s' % resp.status_code
-            return ''
+            return '<html></html>'
 
         return resp.content
 
