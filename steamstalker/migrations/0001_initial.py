@@ -30,17 +30,26 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('steamstalker', ['SteamProfile'])
 
-        # Adding model 'FriendSeen'
-        db.create_table('steamstalker_friendseen', (
+        # Adding model 'SteamFriend'
+        db.create_table('steamstalker_steamfriend', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('profile', self.gf('django.db.models.fields.related.ForeignKey')(related_name='friends_seen', to=orm['steamstalker.SteamProfile'])),
-            ('to_friend', self.gf('django.db.models.fields.related.ForeignKey')(related_name='to_friend', to=orm['steamstalker.SteamProfile'])),
+            ('from_friend', self.gf('django.db.models.fields.related.ForeignKey')(related_name='from_friends', to=orm['steamstalker.SteamProfile'])),
+            ('to_friend', self.gf('django.db.models.fields.related.ForeignKey')(related_name='to_friends', to=orm['steamstalker.SteamProfile'])),
+            ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
+            ('updated', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
+        ))
+        db.send_create_signal('steamstalker', ['SteamFriend'])
+
+        # Adding model 'ProfileSeen'
+        db.create_table('steamstalker_profileseen', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('seen', self.gf('django.db.models.fields.related.ForeignKey')(related_name='seen', to=orm['steamstalker.SteamProfile'])),
             ('current_name', self.gf('django.db.models.fields.CharField')(default='', max_length=128, blank=True)),
-            ('status', self.gf('django.db.models.fields.CharField')(default='offline', max_length=10, db_index=True)),
+            ('status', self.gf('django.db.models.fields.CharField')(default='online', max_length=10, db_index=True)),
             ('game', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='friends_seen', null=True, to=orm['steamstalker.Game'])),
             ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
         ))
-        db.send_create_signal('steamstalker', ['FriendSeen'])
+        db.send_create_signal('steamstalker', ['ProfileSeen'])
 
 
     def backwards(self, orm):
@@ -50,27 +59,37 @@ class Migration(SchemaMigration):
         # Deleting model 'SteamProfile'
         db.delete_table('steamstalker_steamprofile')
 
-        # Deleting model 'FriendSeen'
-        db.delete_table('steamstalker_friendseen')
+        # Deleting model 'SteamFriend'
+        db.delete_table('steamstalker_steamfriend')
+
+        # Deleting model 'ProfileSeen'
+        db.delete_table('steamstalker_profileseen')
 
 
     models = {
-        'steamstalker.friendseen': {
-            'Meta': {'object_name': 'FriendSeen'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'current_name': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '128', 'blank': 'True'}),
-            'game': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'friends_seen'", 'null': 'True', 'to': "orm['steamstalker.Game']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'profile': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'friends_seen'", 'to': "orm['steamstalker.SteamProfile']"}),
-            'status': ('django.db.models.fields.CharField', [], {'default': "'offline'", 'max_length': '10', 'db_index': 'True'}),
-            'to_friend': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'to_friend'", 'to': "orm['steamstalker.SteamProfile']"})
-        },
         'steamstalker.game': {
             'Meta': {'object_name': 'Game'},
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '50', 'blank': 'True'}),
+            'updated': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'})
+        },
+        'steamstalker.profileseen': {
+            'Meta': {'object_name': 'ProfileSeen'},
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'current_name': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '128', 'blank': 'True'}),
+            'game': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'friends_seen'", 'null': 'True', 'to': "orm['steamstalker.Game']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'seen': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'seen'", 'to': "orm['steamstalker.SteamProfile']"}),
+            'status': ('django.db.models.fields.CharField', [], {'default': "'online'", 'max_length': '10', 'db_index': 'True'})
+        },
+        'steamstalker.steamfriend': {
+            'Meta': {'object_name': 'SteamFriend'},
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'from_friend': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'from_friends'", 'to': "orm['steamstalker.SteamProfile']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'to_friend': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'to_friends'", 'to': "orm['steamstalker.SteamProfile']"}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'})
         },
         'steamstalker.steamprofile': {

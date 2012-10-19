@@ -33,10 +33,10 @@
                         .attr("id", "all_friends_chart")
 
         var time_extent = d3.extent(all_friends, function(d) {
-            return d.timestamp * 1000;
+            return d[1].timestamp * 1000;
         });
         var active_max = d3.max(all_friends, function(d) {
-            return d.online.length + d.ingame.length;
+            return d[1].online.length + d[1].ingame.length;
         });
         var time_scale = d3.time.scale()
                            .range([0, chart_dimensions.width])
@@ -78,13 +78,13 @@
             .attr("y", 35);
 
         var online_line = d3.svg.line()
-                            .x(function(d) { return time_scale(d.timestamp * 1000) + margins.left; })
-                            .y(function(d) { return active_scale(d.online.length) + (margins.top / 2); })
+                            .x(function(d) { return time_scale(d[1].timestamp * 1000) + margins.left; })
+                            .y(function(d) { return active_scale(d[1].online.length) + (margins.top / 2); })
                             .interpolate("linear");
 
         var active_line = d3.svg.line()
-                            .x(function(d) { return time_scale(d.timestamp * 1000) + margins.left; })
-                            .y(function(d) { return active_scale(d.ingame.length + d.online.length) + (margins.top / 2); })
+                            .x(function(d) { return time_scale(d[1].timestamp * 1000) + margins.left; })
+                            .y(function(d) { return active_scale(d[1].ingame.length + d[1].online.length) + (margins.top / 2); })
                             .interpolate("linear");
 
         d3.select("#all_friends svg")
@@ -118,25 +118,25 @@
                       .append("div")
                         .attr("class", "friend_bar")
                         .style("height", function(d) {
-                            if(d.status == 'ingame') {
+                            if(d[1].status == 'ingame') {
                                 return "20px";
-                            } else if(d.status == 'online') {
+                            } else if(d[1].status == 'online') {
                                 return "10px";
                             }
                             return "2px";
                         })
                         .style("background-color", function(d) {
-                            if(d.status == 'ingame') {
+                            if(d[1].status == 'ingame') {
                                 return "#B1FB50";
-                            } else if(d.status == 'online') {
+                            } else if(d[1].status == 'online') {
                                 return "#E1E1D5";
                             }
                             return "#898989";
                         })
                         .style("margin-top", function(d) {
-                            if(d.status == 'ingame') {
+                            if(d[1].status == 'ingame') {
                                 return "0px";
-                            } else if(d.status == 'online') {
+                            } else if(d[1].status == 'online') {
                                 return "10px";
                             }
                             return "18px";
@@ -157,7 +157,7 @@
             game_info.text(game_name);
 
             var active_max = d3.max(current_game, function(d) {
-                return d.usernames.length;
+                return d[1].length;
             });
 
             game_row.selectAll(".game_bar")
@@ -166,11 +166,11 @@
                     .append("div")
                       .attr("class", "game_bar")
                       .style("height", function(d) {
-                          var size = (d.usernames.length * 5) + 2;
+                          var size = (d[1].length * 5) + 2;
                           return size + "px";
                       })
                       .style("margin-top", function(d) {
-                          var amount = (active_max * 5) - (d.usernames.length * 5);
+                          var amount = (active_max * 5) - (d[1].length * 5);
                           return amount + "px";
                       });
         }
