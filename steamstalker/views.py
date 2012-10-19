@@ -2,10 +2,9 @@ import datetime
 from dateutil.parser import parse as dateutil_parse
 import requests
 import simplejson
-import time
 from django.shortcuts import render
-from django.utils.datastructures import SortedDict
 from django.utils import timezone
+from django.views.decorators.cache import cache_page
 from .models import SteamProfile
 
 
@@ -39,6 +38,7 @@ def steamprofile_add(request, username):
     })
 
 
+@cache_page(60)
 def steamprofile_detail(request, username):
     # See if we've got the profile already.
     try:
