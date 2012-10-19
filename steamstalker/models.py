@@ -151,7 +151,7 @@ class SteamProfile(models.Model):
             imported_at = timezone.now()
 
         # Fetch all the friends at once to save on DB lookups.
-        all_friends = dict([[friend.to_friend.username, friend] for friend in self.to_friends.all().select_related(depth=1)])
+        all_friends = dict([[friend.to_friend.username, friend.to_friend] for friend in self.to_friends.all().select_related(depth=1)])
 
         for friend_data in friends:
             if friend_data['username'] not in all_friends:
@@ -167,9 +167,9 @@ class SteamProfile(models.Model):
             else:
                 friend = all_friends[friend_data['username']]
 
-            if friend.to_friend.avatar_url != friend_data.get('avatar', ''):
-                friend.to_friend.avatar_url = friend_data.get('avatar', '')
-                friend.to_friend.save()
+            if friend.avatar_url != friend_data.get('avatar', ''):
+                friend.avatar_url = friend_data.get('avatar', '')
+                friend.save()
 
             game = None
 
@@ -184,7 +184,7 @@ class SteamProfile(models.Model):
                 # only want to create it *ONCE* per-import, even if multiple
                 # people have the same friend.
                 seen, created = ProfileSeen.objects.get_or_create(
-                    seen=friend.to_friend,
+                    seen=friend,
                     created=imported_at,
                     defaults={
                         'status': friend_data['status'],
