@@ -267,8 +267,14 @@ class SteamProfile(models.Model):
             friends_data['per_game'].setdefault(game, [])
 
         default_tz = timezone.get_default_timezone()
-        current_date = timezone.make_naive(start_date, default_tz)
-        end_date = timezone.make_naive(end_date, default_tz)
+
+        if timezone.is_aware(start_date):
+            current_date = timezone.make_naive(start_date, default_tz)
+        else:
+            current_date = start_date
+
+        if timezone.is_aware(end_date):
+            end_date = timezone.make_naive(end_date, default_tz)
 
         while current_date <= end_date:
             mini_end_date = current_date + increment_by
