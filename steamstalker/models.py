@@ -296,8 +296,6 @@ class SteamProfile(models.Model):
 
             # Per-game.
             per_game = self.aggregate_per_game(current_seen, current_timestamp)
-            if len(per_game):
-                import pdb; pdb.set_trace()
 
             for game in all_games:
                 if game in per_game:
