@@ -247,7 +247,7 @@ class SteamProfile(models.Model):
         # Only statuses for your friends.
         friends_seen = ProfileSeen.objects.filter(seen__in=all_friends)
         # Slice it so we fetch them all at once.
-        seen_qs = friends_seen.filter(created__range=[start_date, end_date]).select_related(depth=1).order_by('created')[:amount_to_load]
+        seen_qs = friends_seen.filter(created__range=[start_date, end_date]).select_related('game', 'seen').order_by('created')[:amount_to_load]
         seen_offset = 0
 
         all_games = Game.objects.filter(friends_seen__in=friends_seen).values_list('name', flat=True).distinct()
