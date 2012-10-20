@@ -9,7 +9,7 @@ except ImportError:
 
 setup(
     name='steamstalker',
-    version='0.1.0',
+    version='0.2.0',
     description='Historical data capture on when your Steam friends are playing games.',
     author='Daniel Lindsley',
     author_email='daniel@toastdriven.com',
